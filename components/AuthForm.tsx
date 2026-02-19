@@ -159,7 +159,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
         className="fixed inset-0 z-0"
         style={{
           background:
-            "linear-gradient(135deg, #180935 0%, #220d4a 50%, #160830 100%)",
+            "linear-gradient(135deg, #0e0520 0%, #150838 50%, #0c0420 100%)",
         }}
       >
         <div className="absolute inset-0 bg-[url('/pattern.png')] bg-top bg-no-repeat opacity-60" />
@@ -185,7 +185,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
             <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-72 h-72 bg-purple-600/15 rounded-full blur-[100px]" />
 
             {/* Robot mascot */}
-            <div className="relative z-10 w-[650px] h-[650px] -mt-32 -mb-32 shrink-0">
+            <div className="relative z-10 w-[600px] h-[650px] -mt-32 -mb-32 shrink-0">
               <Image
                 src="/robot.png"
                 alt="Knovo Robot"
@@ -207,11 +207,14 @@ const AuthForm = ({ type }: { type: FormType }) => {
             </p>
 
             {/* Decorative icons */}
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-purple-500/20 border border-purple-400/30 flex items-center justify-center">
+              <span className="text-purple-400 text-2xl">✨</span>
+            </div>
             <div className="absolute top-8 right-8 w-10 h-10 rounded-full bg-cyan-500/20 border border-cyan-400/30 flex items-center justify-center">
-              <span className="text-cyan-400 text-lg">🎮</span>
+              <span className="text-cyan-400 text-2xl">🎮</span>
             </div>
             <div className="absolute top-20 left-8 w-9 h-9 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center rotate-12">
-              <span className="text-emerald-400 text-sm">🎯</span>
+              <span className="text-emerald-400 text-xl">🎯</span>
             </div>
           </div>
 
