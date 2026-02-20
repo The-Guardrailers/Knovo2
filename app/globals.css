@@ -62,7 +62,7 @@
 }
 
 .dark {
-  --background: #26094b;
+  --background: #0e0520;
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
@@ -93,6 +93,62 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* Dashboard-specific */
+  --feature-card-bg: rgba(30, 10, 60, 0.6);
+  --feature-card-border: rgba(139, 92, 246, 0.2);
+  --feature-card-hover: rgba(139, 92, 246, 0.1);
+  --footer-bg: linear-gradient(135deg, #0c0418 0%, #150838 50%, #0c0418 100%);
+  --chatbot-bg: rgba(20, 8, 45, 0.95);
+  --hero-bg: linear-gradient(160deg, #1e0a3c 0%, #140628 100%);
+  --text-secondary: #a0a0b8;
+  --text-muted-custom: #6b6b80;
+  --sidebar-bg: #0c0520;
+}
+
+.light {
+  --background: #f5f0ff;
+  --foreground: #1a1033;
+  --card: #ffffff;
+  --card-foreground: #1a1033;
+  --popover: #ffffff;
+  --popover-foreground: #1a1033;
+  --primary: #7c3aed;
+  --primary-foreground: #ffffff;
+  --secondary: #f0e6ff;
+  --secondary-foreground: #3b1a6e;
+  --muted: #ede4f7;
+  --muted-foreground: #6b5a8e;
+  --accent: #f0e6ff;
+  --accent-foreground: #3b1a6e;
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: rgba(124, 58, 237, 0.15);
+  --input: rgba(124, 58, 237, 0.1);
+  --ring: #7c3aed;
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: #f5f0ff;
+  --sidebar-foreground: #1a1033;
+  --sidebar-primary: #7c3aed;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f0e6ff;
+  --sidebar-accent-foreground: #3b1a6e;
+  --sidebar-border: rgba(124, 58, 237, 0.15);
+  --sidebar-ring: #7c3aed;
+
+  /* Dashboard-specific */
+  --feature-card-bg: rgba(255, 255, 255, 0.8);
+  --feature-card-border: rgba(124, 58, 237, 0.2);
+  --feature-card-hover: rgba(124, 58, 237, 0.08);
+  --footer-bg: linear-gradient(135deg, #f0e6ff 0%, #e8daf8 50%, #f0e6ff 100%);
+  --chatbot-bg: rgba(255, 255, 255, 0.95);
+  --hero-bg: linear-gradient(160deg, #ffffff 0%, #ffffff 100%);
+  --text-secondary: #5a4a7a;
+  --text-muted-custom: #8a7aa0;
+  --sidebar-bg: #f0e6ff;
 }
 
 @theme inline {
@@ -261,6 +317,14 @@
   }
 
   .root-layout {
+    @apply flex min-h-screen;
+  }
+
+  .root-layout-content {
+    @apply flex-1 flex flex-col gap-12 my-12 pr-16 pl-4 lg:pl-8 max-sm:px-4 max-sm:my-8 overflow-x-hidden;
+  }
+
+  .root-layout-nosidebar {
     @apply flex mx-auto max-w-[1350px] flex-col gap-12 my-12 px-16 max-sm:px-4 max-sm:my-8;
   }
 

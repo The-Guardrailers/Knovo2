@@ -7,10 +7,10 @@ const MonaSans = Mona_Sans({
   subsets: ["latin"],
 });
 
-
 export const metadata: Metadata = {
   title: "Knovo",
-  description: "An Ai powered platform for creating verbal quizzes on almost any topic",
+  description:
+    "An Ai powered platform for creating verbal quizzes on almost any topic",
 };
 
 export default function RootLayout({
@@ -19,10 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body
-        className={`${MonaSans.className} antialiased pattern`}
-      >
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body className={`${MonaSans.className} antialiased pattern`}>
         {children}
       </body>
     </html>

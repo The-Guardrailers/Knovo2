@@ -4,32 +4,74 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { vapi } from "@/lib/vapi.sdk";
 import {
-  Star, Sparkles, Trophy, Zap, Play, ArrowRight, Mic, MicOff, Brain,
-  BookOpen, Lightbulb, Target, Award, Rocket, ChevronDown, MessageSquare,
-  BarChart3, Users, FileText, Bot, Headphones, RefreshCw, Shield
+  Star,
+  Sparkles,
+  Trophy,
+  Zap,
+  Play,
+  ArrowRight,
+  Mic,
+  MicOff,
+  Brain,
+  BookOpen,
+  Lightbulb,
+  Target,
+  Award,
+  Rocket,
+  ChevronDown,
+  MessageSquare,
+  BarChart3,
+  Users,
+  FileText,
+  Bot,
+  Headphones,
+  RefreshCw,
+  Shield,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 /*  Knovo Avatar component (uses the brand mascot robot.png)            */
 /* ------------------------------------------------------------------ */
-function KnovoAvatar({ speaking, active, size = "md" }: { speaking?: boolean; active?: boolean; size?: "sm" | "md" | "lg" }) {
-  const dim = size === "lg" ? "w-[22rem] h-[22rem] md:w-[28rem] md:h-[28rem]" : size === "md" ? "w-72 h-72 md:w-80 md:h-80" : "w-48 h-48";
+function KnovoAvatar({
+  speaking,
+  active,
+  size = "md",
+}: {
+  speaking?: boolean;
+  active?: boolean;
+  size?: "sm" | "md" | "lg";
+}) {
+  const dim =
+    size === "lg"
+      ? "w-[22rem] h-[22rem] md:w-[28rem] md:h-[28rem]"
+      : size === "md"
+        ? "w-72 h-72 md:w-80 md:h-80"
+        : "w-48 h-48";
   const imgSize = size === "lg" ? 500 : size === "md" ? 320 : 200;
   return (
-    <div className={`relative ${dim} select-none flex items-center justify-center`}>
+    <div
+      className={`relative ${dim} select-none flex items-center justify-center`}
+    >
       {/* pulse rings */}
       {(speaking || active) && (
         <>
           <span className="absolute inset-0 rounded-full border-2 border-purple-400/50 animate-ping" />
-          <span className="absolute inset-3 rounded-full border border-violet-400/30 animate-ping" style={{ animationDelay: "0.3s" }} />
+          <span
+            className="absolute inset-3 rounded-full border border-violet-400/30 animate-ping"
+            style={{ animationDelay: "0.3s" }}
+          />
         </>
       )}
-      {speaking && <span className="absolute inset-0 rounded-full bg-purple-500/15 animate-pulse" />}
+      {speaking && (
+        <span className="absolute inset-0 rounded-full bg-purple-500/15 animate-pulse" />
+      )}
 
       {/* Glow backdrop */}
-      <div className={`absolute ${size === "lg" ? "inset-16" : "inset-0"} rounded-full bg-gradient-to-br from-purple-600/20 to-violet-600/20 blur-xl ${
-        active || speaking ? "animate-pulse" : ""
-      }`} />
+      <div
+        className={`absolute ${size === "lg" ? "inset-24" : "inset-0"} rounded-full bg-gradient-to-br from-purple-600/20 to-violet-600/20 blur-xl ${
+          active || speaking ? "animate-pulse" : ""
+        }`}
+      />
 
       {/* Avatar image */}
       <Image
@@ -49,7 +91,15 @@ function KnovoAvatar({ speaking, active, size = "md" }: { speaking?: boolean; ac
 /* ------------------------------------------------------------------ */
 /*  Glassmorphism card wrapper                                         */
 /* ------------------------------------------------------------------ */
-function GlassCard({ children, className = "", hover = false }: { children: React.ReactNode; className?: string; hover?: boolean }) {
+function GlassCard({
+  children,
+  className = "",
+  hover = false,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  hover?: boolean;
+}) {
   return (
     <div
       className={`
@@ -67,13 +117,26 @@ function GlassCard({ children, className = "", hover = false }: { children: Reac
 /* ------------------------------------------------------------------ */
 /*  Section wrapper with fade-in                                       */
 /* ------------------------------------------------------------------ */
-function Section({ id, children, className = "" }: { id?: string; children: React.ReactNode; className?: string }) {
+function Section({
+  id,
+  children,
+  className = "",
+}: {
+  id?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true); }, { threshold: 0.1 });
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) setVisible(true);
+      },
+      { threshold: 0.1 },
+    );
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
@@ -97,9 +160,11 @@ export default function KnovoLandingPage() {
   const [starting, setStarting] = useState(false);
   const [callEnded, setCallEnded] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [messages, setMessages] = useState<{ id: string; role?: string; text: string }[]>([]);
+  const [messages, setMessages] = useState<
+    { id: string; role?: string; text: string }[]
+  >([]);
   const msgIdRef = useRef(0);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const transcriptContainerRef = useRef<HTMLDivElement>(null);
 
   /* ---------- Mic permission state ---------- */
   const [showMicPrompt, setShowMicPrompt] = useState(false);
@@ -108,28 +173,139 @@ export default function KnovoLandingPage() {
   /* ---------- Post-demo state ---------- */
   const [showPostDemo, setShowPostDemo] = useState(false);
 
+  /* ---------- FAQ state ---------- */
+  const [faqCategory, setFaqCategory] = useState("Subscription & Pricing");
+  const [openFaq, setOpenFaq] = useState<string | null>(null);
+
+  const faqData: Record<string, { q: string; a: string }[]> = {
+    "Subscription & Pricing": [
+      {
+        q: "Is Knovo free to use?",
+        a: "Yes! Knovo offers a generous free tier that includes voice quizzes, basic AI tutoring, and access to community topics. Premium plans unlock advanced features like custom RAG agents, unlimited PDF uploads, and team workspaces.",
+      },
+      {
+        q: "What plans are available?",
+        a: "We offer Free, Pro (for individual power-learners), and Team (for study groups & institutions) plans. Pro includes unlimited quizzes, priority voice AI, and detailed analytics. Team adds shared workspaces, admin controls, and bulk pricing.",
+      },
+      {
+        q: "Can I upgrade or downgrade anytime?",
+        a: "Absolutely. You can switch between plans at any time from your account settings. Changes take effect at the start of your next billing cycle, and unused time is prorated.",
+      },
+      {
+        q: "Is there a free trial for premium features?",
+        a: "Yes — every new account gets a 7-day full-access trial of Pro features. No credit card required.",
+      },
+    ],
+    "Features & Functionality": [
+      {
+        q: "How does the voice quiz work?",
+        a: "Knovo uses advanced speech recognition and AI to ask you questions out loud. You answer by speaking, and the AI evaluates your response in real-time, giving instant voice feedback, hints, and explanations.",
+      },
+      {
+        q: "Can I create quizzes on my own topics?",
+        a: "Yes! You can type in any topic, upload a PDF, or paste text — Knovo's AI will generate a full quiz from your material. You can also fine-tune difficulty and question count.",
+      },
+      {
+        q: "What is a Custom RAG Agent?",
+        a: "RAG (Retrieval-Augmented Generation) agents are AI tutors trained on your own content. Upload notes, textbooks, or syllabi and the agent will tutor and quiz you using only that material — perfect for exam prep.",
+      },
+      {
+        q: "Does Knovo support multiple languages?",
+        a: "Currently Knovo supports English with more languages coming soon. Our voice engine is being trained on several regional languages for broader accessibility.",
+      },
+    ],
+    "Voice & AI Technology": [
+      {
+        q: "What AI powers Knovo?",
+        a: "Knovo combines state-of-the-art large language models with real-time speech-to-text and text-to-speech pipelines to deliver a seamless voice-first learning experience.",
+      },
+      {
+        q: "How accurate is the speech recognition?",
+        a: "Our speech engine achieves high accuracy across diverse accents and speaking speeds. It continuously improves with usage and supports noise-tolerant recognition for everyday environments.",
+      },
+      {
+        q: "Is my voice data stored?",
+        a: "Voice audio is processed in real-time and is not permanently stored. Only the text transcript is kept in your account for progress tracking, and you can delete it anytime.",
+      },
+    ],
+    "Account & Privacy": [
+      {
+        q: "How do I create an account?",
+        a: "Click 'Get Started Free' or 'Sign In' and sign up with Google or email. It takes under 30 seconds and no credit card is needed.",
+      },
+      {
+        q: "Can I delete my account and data?",
+        a: "Yes. You can request full account deletion from your settings page. All your data — transcripts, quiz history, and uploaded files — will be permanently removed within 48 hours.",
+      },
+      {
+        q: "Is my learning data shared with anyone?",
+        a: "Never. Your data is yours. We do not sell or share personal learning data with third parties. Analytics are only visible to you (or your team admin in Team plans).",
+      },
+    ],
+    "Getting Started": [
+      {
+        q: "Do I need to install anything?",
+        a: "No. Knovo runs entirely in your browser. Just visit the site, sign in, and start learning. No downloads or plugins required.",
+      },
+      {
+        q: "What devices are supported?",
+        a: "Knovo works on any modern browser — Chrome, Firefox, Safari, and Edge — on desktop, tablet, and mobile. A microphone is required for voice features.",
+      },
+      {
+        q: "How do I take my first quiz?",
+        a: "After signing in, pick a topic from the dashboard or type your own, then click 'Start Quiz'. Knovo will begin asking questions via voice and you simply speak your answers.",
+      },
+      {
+        q: "Can I use Knovo for group study?",
+        a: "Yes! Create or join a Team Workspace, invite your friends, and take live quizzes together — complete with leaderboards and Kahoot-style competitive rounds.",
+      },
+    ],
+  };
+
   const workflowId = process.env.NEXT_PUBLIC_DEMO_WORKFLOW_ID!;
 
-  // Auto-scroll transcript
+  // Auto-scroll transcript (scoped to container only, no page scroll)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = transcriptContainerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
 
   /* ---------- VAPI event handlers (unchanged logic) ---------- */
   useEffect(() => {
-    const onCallStart = () => { setRunning(true); setStarting(false); setCallEnded(false); setShowPostDemo(false); };
-    const onCallEnd = () => { setRunning(false); setCallEnded(true); setShowPostDemo(true); };
+    const onCallStart = () => {
+      setRunning(true);
+      setStarting(false);
+      setCallEnded(false);
+      setShowPostDemo(false);
+    };
+    const onCallEnd = () => {
+      setRunning(false);
+      setCallEnded(true);
+      setShowPostDemo(true);
+    };
     const onMessage = (msg: any) => {
-      const text = msg?.type === "transcript" ? msg.transcript : msg?.text ?? msg?.content ?? "";
-      const role = msg?.role ?? (msg?.from ?? "assistant");
+      const text =
+        msg?.type === "transcript"
+          ? msg.transcript
+          : (msg?.text ?? msg?.content ?? "");
+      const role = msg?.role ?? msg?.from ?? "assistant";
       if (!text) return;
-      if (msg?.type === "transcript" && msg?.transcriptType && msg.transcriptType !== "final") return;
+      if (
+        msg?.type === "transcript" &&
+        msg?.transcriptType &&
+        msg.transcriptType !== "final"
+      )
+        return;
       const id = `m-${++msgIdRef.current}-${Date.now()}`;
       setMessages((prev) => [...prev, { id, role, text }]);
     };
     const onSpeechStart = () => setIsSpeaking(true);
     const onSpeechEnd = () => setIsSpeaking(false);
-    const onError = (err: any) => { console.error("[vapi] error", err); setStarting(false); setRunning(false); };
+    const onError = (err: any) => {
+      console.error("[vapi] error", err);
+      setStarting(false);
+      setRunning(false);
+    };
 
     vapi.on("call-start", onCallStart);
     vapi.on("call-end", onCallEnd);
@@ -159,7 +335,10 @@ export default function KnovoLandingPage() {
   };
 
   const startWorkflow = async () => {
-    if (!workflowId) { alert("Missing NEXT_PUBLIC_DEMO_WORKFLOW_ID in .env.local"); return; }
+    if (!workflowId) {
+      alert("Missing NEXT_PUBLIC_DEMO_WORKFLOW_ID in .env.local");
+      return;
+    }
     setStarting(true);
     setMessages([]);
     setCallEnded(false);
@@ -180,7 +359,9 @@ export default function KnovoLandingPage() {
     setMicDenied(false);
   };
 
-  const handleSignIn = () => { window.location.href = "/sign-in"; };
+  const handleSignIn = () => {
+    window.location.href = "/sign-in";
+  };
 
   const handleSkipDemo = () => {
     setShowMicPrompt(false);
@@ -195,11 +376,16 @@ export default function KnovoLandingPage() {
   /*  RENDER                                                           */
   /* ================================================================ */
   return (
-    <div className="min-h-screen bg-[#120a1e] text-gray-100 overflow-x-hidden" style={{ fontFamily: "'DM Sans', 'Satoshi', sans-serif" }}>
-
+    <div
+      className="min-h-screen bg-[#120a1e] text-gray-100 overflow-x-hidden"
+      style={{ fontFamily: "'DM Sans', 'Satoshi', sans-serif" }}
+    >
       {/* Google Fonts */}
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+      <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet"
+      />
 
       {/* ---- Ambient background ---- */}
       <div className="fixed inset-0 pointer-events-none z-0">
@@ -209,7 +395,13 @@ export default function KnovoLandingPage() {
         <div className="absolute top-[10%] right-[20%] w-[300px] h-[300px] bg-indigo-500/15 rounded-full blur-[100px]" />
         <div className="absolute bottom-[20%] left-[20%] w-[350px] h-[350px] bg-violet-700/20 rounded-full blur-[110px]" />
         {/* Noise texture overlay */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")" }} />
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          }}
+        />
       </div>
 
       {/* ==== MIC PERMISSION OVERLAY ==== */}
@@ -225,7 +417,8 @@ export default function KnovoLandingPage() {
                   Knovo needs to hear your brilliance!
                 </h2>
                 <p className="text-gray-400 text-sm leading-relaxed">
-                  Grant microphone access so Knovo can listen to your answers and give instant voice feedback.
+                  Grant microphone access so Knovo can listen to your answers
+                  and give instant voice feedback.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <button
@@ -244,9 +437,12 @@ export default function KnovoLandingPage() {
               </>
             ) : (
               <>
-                <h2 className="text-xl font-bold text-red-400">Microphone access denied</h2>
+                <h2 className="text-xl font-bold text-red-400">
+                  Microphone access denied
+                </h2>
                 <p className="text-gray-400 text-sm leading-relaxed">
-                  Knovo needs your mic to run the voice demo. You can enable it in your browser settings or skip to sign-in.
+                  Knovo needs your mic to run the voice demo. You can enable it
+                  in your browser settings or skip to sign-in.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <button
@@ -269,7 +465,6 @@ export default function KnovoLandingPage() {
       )}
 
       <div className="relative z-10">
-
         {/* ============================================================ */}
         {/*  1. HERO SECTION                                              */}
         {/* ============================================================ */}
@@ -277,28 +472,47 @@ export default function KnovoLandingPage() {
           {/* Social proof badge */}
           <div className="mb-8 flex items-center gap-2 bg-white/[0.06] border border-white/10 rounded-full px-4 py-2 text-sm text-gray-300">
             <div className="flex -space-x-2">
-              {["bg-purple-500","bg-indigo-500","bg-cyan-500","bg-pink-500"].map((c,i) => (
-                <span key={i} className={`w-6 h-6 rounded-full ${c} border-2 border-[#120a1e] inline-flex items-center justify-center text-[9px] font-bold text-white`}>
-                  {["S","A","R","K"][i]}
+              {[
+                "bg-purple-500",
+                "bg-indigo-500",
+                "bg-cyan-500",
+                "bg-pink-500",
+              ].map((c, i) => (
+                <span
+                  key={i}
+                  className={`w-6 h-6 rounded-full ${c} border-2 border-[#120a1e] inline-flex items-center justify-center text-[9px] font-bold text-white`}
+                >
+                  {["S", "A", "R", "K"][i]}
                 </span>
               ))}
             </div>
-            <span className="ml-1">Join <strong className="text-white">5,000+</strong> learners</span>
+            <span className="ml-1">
+              Join <strong className="text-white">5,000+</strong> learners
+            </span>
           </div>
 
           {/* Headline */}
           <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.05] max-w-5xl mx-auto">
-            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-300 bg-clip-text text-transparent">Knowledge</span>
-            <span className="text-gray-500 mx-2 md:mx-3 font-light text-3xl md:text-6xl lg:text-7xl">+</span>
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-300 bg-clip-text text-transparent">Voice</span>
-            <span className="text-gray-500 mx-2 md:mx-3 font-light text-3xl md:text-6xl lg:text-7xl">=</span>
+            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-300 bg-clip-text text-transparent">
+              Knowledge
+            </span>
+            <span className="text-gray-500 mx-2 md:mx-3 font-light text-3xl md:text-6xl lg:text-7xl">
+              +
+            </span>
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-300 bg-clip-text text-transparent">
+              Voice
+            </span>
+            <span className="text-gray-500 mx-2 md:mx-3 font-light text-3xl md:text-6xl lg:text-7xl">
+              =
+            </span>
             <span className="block sm:inline bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400 bg-clip-text text-transparent">
               KNOVO
             </span>
           </h1>
 
           <p className="mt-6 md:mt-8 text-base sm:text-lg md:text-xl text-gray-400 max-w-2xl leading-relaxed">
-            Speak your answers. AI quizzes on anything — instant feedback, voice-first. Built for students, exam prep, and curious minds.
+            Speak your answers. AI quizzes on anything — instant feedback,
+            voice-first. Built for students, exam prep, and curious minds.
           </p>
         </section>
 
@@ -309,14 +523,21 @@ export default function KnovoLandingPage() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-10">
               <h2 className="text-3xl md:text-4xl font-bold">Try the Demo</h2>
-              <p className="text-gray-400 mt-2 max-w-lg mx-auto text-sm md:text-base">Click "Take Demo" and have a live voice conversation with Knovo&apos;s AI assistant.</p>
+              <p className="text-gray-400 mt-2 max-w-lg mx-auto text-sm md:text-base">
+                Click "Take Demo" and have a live voice conversation with
+                Knovo&apos;s AI assistant.
+              </p>
             </div>
 
             <div className="flex flex-col lg:flex-row items-stretch gap-6">
               {/* Robot panel */}
               <GlassCard className="flex-shrink-0 p-6 flex items-center justify-center h-[380px] md:h-[480px] lg:w-[340px]">
                 <div className="relative">
-                  <KnovoAvatar speaking={isSpeaking} active={running} size="lg" />
+                  <KnovoAvatar
+                    speaking={isSpeaking}
+                    active={running}
+                    size="lg"
+                  />
                   {running && (
                     <span className="absolute top-0 right-0 w-5 h-5 bg-emerald-500 rounded-full border-2 border-[#120a1e] animate-pulse" />
                   )}
@@ -333,12 +554,18 @@ export default function KnovoLandingPage() {
                       <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
                     </div>
-                    <span className="text-sm font-semibold text-gray-300 tracking-wide" style={{ fontFamily: "'Space Mono', monospace" }}>knovo-demo</span>
+                    <span
+                      className="text-sm font-semibold text-gray-300 tracking-wide"
+                      style={{ fontFamily: "'Space Mono', monospace" }}
+                    >
+                      knovo-demo
+                    </span>
                   </div>
                   <div className="flex items-center gap-3">
                     {running && (
                       <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
-                        <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" /> Live
+                        <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />{" "}
+                        Live
                       </span>
                     )}
                     {isSpeaking && (
@@ -358,19 +585,28 @@ export default function KnovoLandingPage() {
                         <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 flex items-center justify-center">
                           <Award className="w-7 h-7 text-emerald-400" />
                         </div>
-                        <p className="text-gray-200 font-semibold text-lg">Liked the interaction?</p>
+                        <p className="text-gray-200 font-semibold text-lg">
+                          Liked the interaction?
+                        </p>
                         <p className="text-gray-400 text-sm max-w-sm leading-relaxed">
-                          Create a free account and start exploring voice-enabled features inside Knovo.
+                          Create a free account and start exploring
+                          voice-enabled features inside Knovo.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-3 mt-1">
                           <button
                             onClick={handleSignIn}
                             className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all"
                           >
-                            <ArrowRight className="w-4 h-4" /> Sign In / Create Account
+                            <ArrowRight className="w-4 h-4" /> Sign In / Create
+                            Account
                           </button>
                           <button
-                            onClick={() => { setShowPostDemo(false); setCallEnded(false); setMessages([]); handleTakeDemo(); }}
+                            onClick={() => {
+                              setShowPostDemo(false);
+                              setCallEnded(false);
+                              setMessages([]);
+                              handleTakeDemo();
+                            }}
                             className="flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-600 text-gray-300 font-medium hover:bg-white/5 transition-all"
                           >
                             <RefreshCw className="w-4 h-4" /> Retake Demo
@@ -380,11 +616,22 @@ export default function KnovoLandingPage() {
                     ) : messages.length === 0 && !starting && !running ? (
                       <div className="flex flex-col items-center justify-center h-full text-center gap-3">
                         <MicOff className="w-10 h-10 text-gray-600" />
-                        <p className="text-gray-400 font-medium">Ready for a Demo?</p>
-                        <p className="text-gray-500 text-sm">Click "Take Demo" to hear from our AI assistant</p>
+                        <p className="text-gray-400 font-medium">
+                          Ready for a Demo?
+                        </p>
+                        <p className="text-gray-500 text-sm">
+                          Click "Take Demo" to hear from our AI assistant
+                        </p>
                       </div>
                     ) : (
-                      <div className="h-full overflow-y-auto pr-2 space-y-3" style={{ scrollbarWidth: "thin", scrollbarColor: "#7c3aed #1a1a2e" }}>
+                      <div
+                        ref={transcriptContainerRef}
+                        className="h-full overflow-y-auto pr-2 space-y-3"
+                        style={{
+                          scrollbarWidth: "thin",
+                          scrollbarColor: "#7c3aed #1a1a2e",
+                        }}
+                      >
                         {starting && messages.length === 0 && (
                           <div className="flex items-center gap-2 text-gray-400 text-sm animate-pulse py-4 justify-center">
                             <span className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
@@ -402,14 +649,26 @@ export default function KnovoLandingPage() {
                                   : "bg-purple-500/10 border-l-[3px] border-purple-500"
                               }`}
                             >
-                              <div className={`text-[10px] font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1.5 ${isUser ? "text-blue-400" : "text-purple-400"}`}>
-                                {isUser ? (<><Mic className="w-3 h-3" /> You</>) : (<><Zap className="w-3 h-3 fill-current" /> Knovo</>)}
+                              <div
+                                className={`text-[10px] font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1.5 ${isUser ? "text-blue-400" : "text-purple-400"}`}
+                              >
+                                {isUser ? (
+                                  <>
+                                    <Mic className="w-3 h-3" /> You
+                                  </>
+                                ) : (
+                                  <>
+                                    <Zap className="w-3 h-3 fill-current" />{" "}
+                                    Knovo
+                                  </>
+                                )}
                               </div>
-                              <div className="text-gray-200 text-sm leading-relaxed">{m.text}</div>
+                              <div className="text-gray-200 text-sm leading-relaxed">
+                                {m.text}
+                              </div>
                             </div>
                           );
                         })}
-                        <div ref={messagesEndRef} />
                       </div>
                     )}
                   </div>
@@ -431,11 +690,19 @@ export default function KnovoLandingPage() {
                     }`}
                   >
                     {starting ? (
-                      <span className="flex items-center gap-2"><span className="w-4 h-4 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" /> Starting Demo...</span>
+                      <span className="flex items-center gap-2">
+                        <span className="w-4 h-4 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />{" "}
+                        Starting Demo...
+                      </span>
                     ) : running ? (
-                      <span className="flex items-center gap-2"><span className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse" /> Demo Running...</span>
+                      <span className="flex items-center gap-2">
+                        <span className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse" />{" "}
+                        Demo Running...
+                      </span>
                     ) : (
-                      <span className="flex items-center gap-2"><Play className="w-5 h-5 fill-current" /> Take Demo</span>
+                      <span className="flex items-center gap-2">
+                        <Play className="w-5 h-5 fill-current" /> Take Demo
+                      </span>
                     )}
                   </button>
                 ) : null}
@@ -455,8 +722,12 @@ export default function KnovoLandingPage() {
         {/* ============================================================ */}
         <Section className="py-16 md:py-24 px-4">
           <div className="max-w-5xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
-            <p className="text-gray-400 mb-12 max-w-lg mx-auto text-sm md:text-base">Three steps to smarter learning.</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              How It Works
+            </h2>
+            <p className="text-gray-400 mb-12 max-w-lg mx-auto text-sm md:text-base">
+              Three steps to smarter learning.
+            </p>
 
             <div className="grid md:grid-cols-3 gap-6 relative">
               {/* connectors (desktop) */}
@@ -464,17 +735,43 @@ export default function KnovoLandingPage() {
               <div className="hidden md:block absolute top-14 left-[66%] w-[34%] h-0.5 bg-gradient-to-r from-cyan-500/40 to-emerald-500/40" />
 
               {[
-                { icon: <BookOpen className="w-7 h-7 text-purple-400" />, title: "Pick a Topic", desc: "Choose from preset categories or upload your own material.", color: "purple" },
-                { icon: <Mic className="w-7 h-7 text-cyan-400" />, title: "Talk with Knovo", desc: "Answer questions and learn through real-time voice interaction.", color: "cyan" },
-                { icon: <BarChart3 className="w-7 h-7 text-emerald-400" />, title: "Track Progress", desc: "See scores, leaderboards, and improvement over time.", color: "emerald" },
+                {
+                  icon: <BookOpen className="w-7 h-7 text-purple-400" />,
+                  title: "Pick a Topic",
+                  desc: "Choose from preset categories or upload your own material.",
+                  color: "purple",
+                },
+                {
+                  icon: <Mic className="w-7 h-7 text-cyan-400" />,
+                  title: "Talk with Knovo",
+                  desc: "Answer questions and learn through real-time voice interaction.",
+                  color: "cyan",
+                },
+                {
+                  icon: <BarChart3 className="w-7 h-7 text-emerald-400" />,
+                  title: "Track Progress",
+                  desc: "See scores, leaderboards, and improvement over time.",
+                  color: "emerald",
+                },
               ].map((step, i) => (
                 <GlassCard key={i} className="p-6 text-center relative" hover>
-                  <div className={`w-12 h-12 mx-auto rounded-xl bg-${step.color}-500/10 border border-${step.color}-500/20 flex items-center justify-center mb-4`}>
+                  <div
+                    className={`w-12 h-12 mx-auto rounded-xl bg-${step.color}-500/10 border border-${step.color}-500/20 flex items-center justify-center mb-4`}
+                  >
                     {step.icon}
                   </div>
-                  <span className="text-xs font-bold text-gray-500 uppercase tracking-widest" style={{ fontFamily: "'Space Mono', monospace" }}>Step {i + 1}</span>
-                  <h3 className="text-lg font-bold mt-2 mb-2 text-gray-100">{step.title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">{step.desc}</p>
+                  <span
+                    className="text-xs font-bold text-gray-500 uppercase tracking-widest"
+                    style={{ fontFamily: "'Space Mono', monospace" }}
+                  >
+                    Step {i + 1}
+                  </span>
+                  <h3 className="text-lg font-bold mt-2 mb-2 text-gray-100">
+                    {step.title}
+                  </h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    {step.desc}
+                  </p>
                 </GlassCard>
               ))}
             </div>
@@ -488,27 +785,87 @@ export default function KnovoLandingPage() {
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold">Features</h2>
-              <p className="text-gray-400 mt-2 max-w-lg mx-auto text-sm md:text-base">Everything you need for voice-powered learning.</p>
+              <p className="text-gray-400 mt-2 max-w-lg mx-auto text-sm md:text-base">
+                Everything you need for voice-powered learning.
+              </p>
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {[
-                { icon: <Bot className="w-6 h-6" />, title: "Custom RAG Agents", desc: "Schools & individuals create AI tutors fed with their own content via PDF/text. Agents tutor and quiz via voice.", gradient: "from-purple-500/20 to-indigo-500/20", iconColor: "text-purple-400" },
-                { icon: <FileText className="w-6 h-6" />, title: "PDF Voice Explainer", desc: "Upload a PDF, and the AI explains it line-by-line or paragraph-by-paragraph in voice.", gradient: "from-blue-500/20 to-cyan-500/20", iconColor: "text-blue-400" },
-                { icon: <Users className="w-6 h-6" />, title: "Team Workspaces", desc: "Groups learn and take quizzes together in shared voice sessions. Supports Kahoot-style quizzes and debate competitions.", gradient: "from-emerald-500/20 to-teal-500/20", iconColor: "text-emerald-400" },
-                { icon: <Trophy className="w-6 h-6" />, title: "Leaderboards", desc: "Track team and individual performance with real-time rankings and streaks.", gradient: "from-amber-500/20 to-orange-500/20", iconColor: "text-amber-400" },
-                { icon: <Headphones className="w-6 h-6" />, title: "Voice Assistant Guide", desc: "A chatbot that guides you through every feature via voice/text and creates study roadmaps.", gradient: "from-pink-500/20 to-rose-500/20", iconColor: "text-pink-400" },
-                { icon: <Target className="w-6 h-6" />, title: "Multiple Quiz Modes", desc: "Adaptive difficulty, challenge mode, timed rounds, and more modes coming.", gradient: "from-cyan-500/20 to-blue-500/20", iconColor: "text-cyan-400" },
-                { icon: <Zap className="w-6 h-6" />, title: "Instant Voice Feedback", desc: "Get real-time corrections, hints, and explanations — all through voice interaction.", gradient: "from-yellow-500/20 to-amber-500/20", iconColor: "text-yellow-400" },
-                { icon: <Brain className="w-6 h-6" />, title: "AI-Powered Quizzes", desc: "Knovo generates quizzes on any topic. Just pick a subject and start talking.", gradient: "from-violet-500/20 to-purple-500/20", iconColor: "text-violet-400" },
-                { icon: <Shield className="w-6 h-6" />, title: "Privacy-First", desc: "Your voice data and learning progress are private and secure. Always.", gradient: "from-gray-500/20 to-slate-500/20", iconColor: "text-gray-400" },
+                {
+                  icon: <Bot className="w-6 h-6" />,
+                  title: "Custom RAG Agents",
+                  desc: "Schools & individuals create AI tutors fed with their own content via PDF/text. Agents tutor and quiz via voice.",
+                  gradient: "from-purple-500/20 to-indigo-500/20",
+                  iconColor: "text-purple-400",
+                },
+                {
+                  icon: <FileText className="w-6 h-6" />,
+                  title: "PDF Voice Explainer",
+                  desc: "Upload a PDF, and the AI explains it line-by-line or paragraph-by-paragraph in voice.",
+                  gradient: "from-blue-500/20 to-cyan-500/20",
+                  iconColor: "text-blue-400",
+                },
+                {
+                  icon: <Users className="w-6 h-6" />,
+                  title: "Team Workspaces",
+                  desc: "Groups learn and take quizzes together in shared voice sessions. Supports Kahoot-style quizzes and debate competitions.",
+                  gradient: "from-emerald-500/20 to-teal-500/20",
+                  iconColor: "text-emerald-400",
+                },
+                {
+                  icon: <Trophy className="w-6 h-6" />,
+                  title: "Leaderboards",
+                  desc: "Track team and individual performance with real-time rankings and streaks.",
+                  gradient: "from-amber-500/20 to-orange-500/20",
+                  iconColor: "text-amber-400",
+                },
+                {
+                  icon: <Headphones className="w-6 h-6" />,
+                  title: "Voice Assistant Guide",
+                  desc: "A chatbot that guides you through every feature via voice/text and creates study roadmaps.",
+                  gradient: "from-pink-500/20 to-rose-500/20",
+                  iconColor: "text-pink-400",
+                },
+                {
+                  icon: <Target className="w-6 h-6" />,
+                  title: "Multiple Quiz Modes",
+                  desc: "Adaptive difficulty, challenge mode, timed rounds, and more modes coming.",
+                  gradient: "from-cyan-500/20 to-blue-500/20",
+                  iconColor: "text-cyan-400",
+                },
+                {
+                  icon: <Zap className="w-6 h-6" />,
+                  title: "Instant Voice Feedback",
+                  desc: "Get real-time corrections, hints, and explanations — all through voice interaction.",
+                  gradient: "from-yellow-500/20 to-amber-500/20",
+                  iconColor: "text-yellow-400",
+                },
+                {
+                  icon: <Brain className="w-6 h-6" />,
+                  title: "AI-Powered Quizzes",
+                  desc: "Knovo generates quizzes on any topic. Just pick a subject and start talking.",
+                  gradient: "from-violet-500/20 to-purple-500/20",
+                  iconColor: "text-violet-400",
+                },
+                {
+                  icon: <Shield className="w-6 h-6" />,
+                  title: "Privacy-First",
+                  desc: "Your voice data and learning progress are private and secure. Always.",
+                  gradient: "from-gray-500/20 to-slate-500/20",
+                  iconColor: "text-gray-400",
+                },
               ].map((f, i) => (
                 <GlassCard key={i} className="p-5 group" hover>
-                  <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${f.gradient} flex items-center justify-center mb-3 ${f.iconColor} transition-transform group-hover:scale-110`}>
+                  <div
+                    className={`w-10 h-10 rounded-lg bg-gradient-to-br ${f.gradient} flex items-center justify-center mb-3 ${f.iconColor} transition-transform group-hover:scale-110`}
+                  >
                     {f.icon}
                   </div>
                   <h3 className="font-bold text-gray-100 mb-1.5">{f.title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">{f.desc}</p>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    {f.desc}
+                  </p>
                 </GlassCard>
               ))}
             </div>
@@ -521,7 +878,9 @@ export default function KnovoLandingPage() {
         <Section className="py-16 md:py-24 px-4">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold">What Learners Say</h2>
+              <h2 className="text-3xl md:text-4xl font-bold">
+                What Learners Say
+              </h2>
             </div>
 
             {/* Stats bar */}
@@ -532,8 +891,12 @@ export default function KnovoLandingPage() {
                 { value: "98%", label: "Satisfaction Rate" },
               ].map((s, i) => (
                 <GlassCard key={i} className="py-5 px-4 text-center">
-                  <div className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">{s.value}</div>
-                  <div className="text-gray-400 text-xs md:text-sm mt-1">{s.label}</div>
+                  <div className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                    {s.value}
+                  </div>
+                  <div className="text-gray-400 text-xs md:text-sm mt-1">
+                    {s.label}
+                  </div>
                 </GlassCard>
               ))}
             </div>
@@ -541,9 +904,24 @@ export default function KnovoLandingPage() {
             {/* Testimonial cards */}
             <div className="grid md:grid-cols-3 gap-5">
               {[
-                { name: "Aarav M.", role: "JEE Aspirant", text: "Knovo made my physics revision way more engaging. Answering out loud actually helps me remember better than just reading notes.", avatar: "A" },
-                { name: "Sneha R.", role: "NEET Prep Student", text: "The voice quizzes feel like having a personal tutor. I use it every night before sleep for a quick biology round.", avatar: "S" },
-                { name: "Karthik D.", role: "College Student", text: "I uploaded my semester notes and Knovo turned them into voice quizzes. Saved me hours of making flashcards.", avatar: "K" },
+                {
+                  name: "Aarav M.",
+                  role: "JEE Aspirant",
+                  text: "Knovo made my physics revision way more engaging. Answering out loud actually helps me remember better than just reading notes.",
+                  avatar: "A",
+                },
+                {
+                  name: "Sneha R.",
+                  role: "NEET Prep Student",
+                  text: "The voice quizzes feel like having a personal tutor. I use it every night before sleep for a quick biology round.",
+                  avatar: "S",
+                },
+                {
+                  name: "Karthik D.",
+                  role: "College Student",
+                  text: "I uploaded my semester notes and Knovo turned them into voice quizzes. Saved me hours of making flashcards.",
+                  avatar: "K",
+                },
               ].map((t, i) => (
                 <GlassCard key={i} className="p-5" hover>
                   <div className="flex items-center gap-3 mb-4">
@@ -551,14 +929,21 @@ export default function KnovoLandingPage() {
                       {t.avatar}
                     </div>
                     <div>
-                      <div className="font-semibold text-gray-100 text-sm">{t.name}</div>
+                      <div className="font-semibold text-gray-100 text-sm">
+                        {t.name}
+                      </div>
                       <div className="text-gray-500 text-xs">{t.role}</div>
                     </div>
                   </div>
-                  <p className="text-gray-300 text-sm leading-relaxed italic">&ldquo;{t.text}&rdquo;</p>
+                  <p className="text-gray-300 text-sm leading-relaxed italic">
+                    &ldquo;{t.text}&rdquo;
+                  </p>
                   <div className="flex gap-0.5 mt-3">
                     {Array.from({ length: 5 }).map((_, j) => (
-                      <Star key={j} className="w-3.5 h-3.5 text-amber-400 fill-current" />
+                      <Star
+                        key={j}
+                        className="w-3.5 h-3.5 text-amber-400 fill-current"
+                      />
                     ))}
                   </div>
                 </GlassCard>
@@ -582,7 +967,8 @@ export default function KnovoLandingPage() {
                   Ready to learn smarter?
                 </h2>
                 <p className="text-gray-400 max-w-md mx-auto text-sm md:text-base leading-relaxed">
-                  Join thousands of learners using voice-powered AI to study faster, retain more, and have fun doing it.
+                  Join thousands of learners using voice-powered AI to study
+                  faster, retain more, and have fun doing it.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
                   <button
@@ -592,7 +978,10 @@ export default function KnovoLandingPage() {
                     <Rocket className="w-5 h-5" /> Get Started Free
                   </button>
                   <button
-                    onClick={() => { scrollToDemo(); setTimeout(handleTakeDemo, 600); }}
+                    onClick={() => {
+                      scrollToDemo();
+                      setTimeout(handleTakeDemo, 600);
+                    }}
                     className="flex items-center justify-center gap-2 px-8 py-4 rounded-xl border border-gray-600 text-gray-200 font-medium text-lg hover:bg-white/5 transition-all"
                   >
                     <Play className="w-4 h-4 fill-current" /> Try Demo
@@ -604,12 +993,84 @@ export default function KnovoLandingPage() {
         </Section>
 
         {/* ============================================================ */}
+        {/*  7. FAQ SECTION                                                */}
+        {/* ============================================================ */}
+        <Section className="py-16 md:py-24 px-4">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">
+              Frequently Asked Questions
+            </h2>
+
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Left — Category capsules */}
+              <div className="flex flex-row flex-wrap lg:flex-col gap-2.5 lg:w-[260px] shrink-0">
+                {Object.keys(faqData).map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setFaqCategory(cat);
+                      setOpenFaq(null);
+                    }}
+                    className={`px-5 py-2.5 rounded-full text-sm font-medium border transition-all text-left whitespace-nowrap ${
+                      faqCategory === cat
+                        ? "bg-purple-600/30 border-purple-500/50 text-white shadow-lg shadow-purple-900/20"
+                        : "bg-white/[0.04] border-white/10 text-gray-400 hover:bg-white/[0.08] hover:text-gray-200"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
+              {/* Right — Accordion questions */}
+              <div className="flex-1 flex flex-col gap-2">
+                {faqData[faqCategory].map((item, i) => {
+                  const key = `${faqCategory}-${i}`;
+                  const isOpen = openFaq === key;
+                  return (
+                    <div key={key}>
+                      <button
+                        onClick={() => setOpenFaq(isOpen ? null : key)}
+                        className="w-full flex items-center justify-between gap-4 px-5 py-4 rounded-xl bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.07] transition-all text-left group"
+                      >
+                        <span className="text-gray-200 text-sm md:text-base font-medium">
+                          {item.q}
+                        </span>
+                        <ChevronDown
+                          className={`w-5 h-5 text-gray-500 group-hover:text-gray-300 shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                        />
+                      </button>
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                          isOpen
+                            ? "max-h-[500px] opacity-100"
+                            : "max-h-0 opacity-0"
+                        }`}
+                      >
+                        <p className="px-5 pt-3 pb-4 text-gray-400 text-sm leading-relaxed">
+                          {item.a}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        {/* ============================================================ */}
         {/*  FOOTER                                                       */}
         {/* ============================================================ */}
         <footer className="py-8 px-4 border-t border-white/[0.04]">
           <div className="max-w-6xl mx-auto text-center text-gray-500 text-sm">
-            <p>Experience the future of interactive learning with AI-powered voice technology.</p>
-            <p className="mt-2 text-gray-600 text-xs">&copy; {new Date().getFullYear()} Knovo. All rights reserved.</p>
+            <p>
+              Experience the future of interactive learning with AI-powered
+              voice technology.
+            </p>
+            <p className="mt-2 text-gray-600 text-xs">
+              &copy; {new Date().getFullYear()} Knovo. All rights reserved.
+            </p>
           </div>
         </footer>
       </div>
