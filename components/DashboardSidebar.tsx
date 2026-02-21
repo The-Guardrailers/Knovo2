@@ -58,7 +58,7 @@ export default function DashboardSidebar({
       <div className="flex items-center justify-between px-5 pt-6 pb-8">
         <Link href="/" className="flex items-center gap-2.5">
           <Image src="/logo.svg" alt="Logo" width={34} height={34} />
-          <span className="bg-gradient-to-r from-purple-700 via-pink-500 to-yellow-600 bg-clip-text text-transparent text-2xl font-bold">
+          <span className="bg-gradient-to-r from-purple-700 via-pink-500 to-yellow-600 bg-clip-text text-transparent text-3xl font-bold">
             KNOVO
           </span>
         </Link>

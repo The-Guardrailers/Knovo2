@@ -104,23 +104,24 @@ export default function PdfExplainerPage() {
         },
       } as any);
 
-      // Delay slightly to ensure connection is established before sending context
+      // Delay slightly to ensure connection is established before triggering explanation
       setTimeout(() => {
         try {
-          console.log("Injecting PDF Context:", text);
-          // Force the PDF text into the agent's memory using a contextual update
+          console.log("Triggering explicit explanation for:", text);
+
+          // Give a contextual update setting the expectation: explain right away
           conversation.sendContextualUpdate(
-            `[SYSTEM CONTEXT INJECTION]\nThe user wants you to explain the following text right now. Please tell them you have read it and are ready to explain:\n\n"""\n${text}\n"""`,
+            `[SYSTEM MESSAGE]\nThe user has provided the text and is waiting for you to explain it. Do not ask if they are ready or if they want to hear it. Begin your verbal explanation of the provided text immediately.\n\nText to explain:\n"""\n${text}\n"""`,
           );
 
-          // immediately trigger the AI to start speaking about the text so the user doesn't have to speak first
+          // Force the agent to begin its turn by sending a simulated user start message
           setTimeout(() => {
             conversation.sendUserMessage(
-              "Please read the text I just provided and explain it to me now.",
+              "I am ready. Please begin explaining the text to me right now.",
             );
-          }, 500); // Small delay after context injection
+          }, 500);
         } catch (e) {
-          console.warn("Could not send contextual update immediately", e);
+          console.warn("Could not send immediate explanation trigger", e);
         }
       }, 1500); // 1.5s delay to assure the WebRTC connection is fully hooked up
     } catch (error: any) {
@@ -212,69 +213,75 @@ export default function PdfExplainerPage() {
       {paragraphs.length > 0 && (
         <div className="w-full flex flex-col lg:flex-row gap-8 mt-8 text-left">
           {/* LEFT PANEL: The PDF Text */}
-          <div className="flex-1 bg-[#0f0a1f] rounded-2xl border border-purple-500/20 p-6 overflow-y-auto max-h-[70vh] custom-scrollbar">
-            <h2 className="text-xl font-bold text-white mb-6 sticky top-0 bg-[#0f0a1f] py-2 border-b border-purple-500/20 z-10">
-              Document Content
-            </h2>
-            <div className="space-y-6">
-              {paragraphs.map((text, idx) => (
-                <div
-                  key={idx}
-                  className={`p-5 rounded-xl transition-all relative group ${
-                    activeParagraphIndex === idx
-                      ? "bg-purple-500/10 border border-purple-500/50 shadow-[0_0_20px_rgba(168,85,247,0.15)]"
-                      : "bg-white/5 border border-white/5 hover:bg-white/10"
-                  }`}
-                >
-                  <p className="text-gray-300 leading-relaxed text-sm md:text-base pr-12">
-                    {text}
-                  </p>
+          <div
+            className={`flex-1 bg-[#0f0a1f] rounded-2xl border border-purple-500/20 flex flex-col overflow-hidden ${
+              activeParagraphIndex !== null ? "h-[550px]" : ""
+            }`}
+          >
+            <div className="p-6 pb-4 border-b border-purple-500/20 bg-[#0f0a1f] z-10 shrink-0 shadow-sm">
+              <h2 className="text-xl font-bold text-white">Document Content</h2>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6 pt-4 custom-scrollbar">
+              <div className="space-y-6">
+                {paragraphs.map((text, idx) => (
+                  <div
+                    key={idx}
+                    className={`p-5 rounded-xl transition-all relative group ${
+                      activeParagraphIndex === idx
+                        ? "bg-purple-500/10 border border-purple-500/50 shadow-[0_0_20px_rgba(168,85,247,0.15)]"
+                        : "bg-white/5 border border-white/5 hover:bg-white/10"
+                    }`}
+                  >
+                    <p className="text-gray-300 leading-relaxed text-sm md:text-base pr-12">
+                      {text}
+                    </p>
 
-                  <div className="flex justify-end pt-2">
-                    {activeParagraphIndex === idx &&
-                    conversation.status === "connected" ? (
-                      <button
-                        onClick={stopExplanation}
-                        className="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-xl transition-all flex items-center gap-2 shadow-sm font-medium text-sm"
-                        title="Stop Explanation"
-                      >
-                        <Square className="w-4 h-4 fill-current" />
-                        Stop Explaining
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => explainParagraph(idx, text)}
-                        className={`${
-                          activeParagraphIndex === idx
-                            ? "bg-purple-500 text-white animate-pulse shadow-[0_0_15px_rgba(168,85,247,0.4)]"
-                            : "bg-white/5 text-purple-200/50 hover:bg-purple-500/10 hover:text-purple-300"
-                        } px-4 py-2 text-sm rounded-xl transition-all flex items-center justify-center gap-2 font-medium`}
-                        title="Explain this section"
-                        disabled={conversation.status === "connecting"}
-                      >
-                        {activeParagraphIndex === idx &&
-                        conversation.status === "connecting" ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            Connecting...
-                          </>
-                        ) : (
-                          <>
-                            <Play className="w-4 h-4 fill-current" />
-                            Explain this paragraph
-                          </>
-                        )}
-                      </button>
-                    )}
+                    <div className="flex justify-end pt-2">
+                      {activeParagraphIndex === idx &&
+                      conversation.status === "connected" ? (
+                        <button
+                          onClick={stopExplanation}
+                          className="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-xl transition-all flex items-center gap-2 shadow-sm font-medium text-sm"
+                          title="Stop Explanation"
+                        >
+                          <Square className="w-4 h-4 fill-current" />
+                          Stop Explaining
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => explainParagraph(idx, text)}
+                          className={`${
+                            activeParagraphIndex === idx
+                              ? "bg-purple-500 text-white animate-pulse shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+                              : "bg-white/5 text-purple-200/50 hover:bg-pink-500/20 hover:text-pink-300 hover:shadow-[0_0_15px_rgba(236,72,153,0.3)]"
+                          } px-4 py-2 text-sm rounded-xl transition-all flex items-center justify-center gap-2 font-medium`}
+                          title="Explain this section"
+                          disabled={conversation.status === "connecting"}
+                        >
+                          {activeParagraphIndex === idx &&
+                          conversation.status === "connecting" ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Connecting...
+                            </>
+                          ) : (
+                            <>
+                              <Play className="w-4 h-4 fill-current" />
+                              Explain this paragraph
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
           {/* RIGHT PANEL: The Agent UI & Transcript */}
           {activeParagraphIndex !== null && (
-            <div className="w-full lg:w-[400px] xl:w-[450px] flex flex-col gap-4">
+            <div className="w-full lg:w-[400px] xl:w-[450px] flex flex-col gap-4 h-[550px]">
               {/* Agent Voice Orb UI */}
               <div className="bg-[#0f0a1f] rounded-2xl border border-purple-500/20 p-8 flex flex-col items-center justify-center shrink-0">
                 <div className="relative mb-6 mt-4">
@@ -328,7 +335,7 @@ export default function PdfExplainerPage() {
               </div>
 
               {/* Chat Transcript UI */}
-              <div className="flex-1 bg-[#0f0a1f] rounded-2xl border border-purple-500/20 p-4 flex flex-col min-h-[300px] h-[350px] max-h-[400px]">
+              <div className="flex-1 bg-[#0f0a1f] rounded-2xl border border-purple-500/20 p-4 flex flex-col overflow-hidden">
                 <h3 className="text-sm font-semibold text-purple-300 uppercase tracking-wider mb-4 border-b border-purple-500/20 pb-2 shrink-0">
                   Live Transcript
                 </h3>
