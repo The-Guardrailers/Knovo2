@@ -83,7 +83,7 @@ const allFeatures = [
     description:
       "Multiple quiz modes with adaptive difficulty, timed rounds, and head-to-head competitions. Compete with learners worldwide.",
     icon: Zap,
-    href: "/multiplayer",
+    href: "/challenges",
     gradient: "from-orange-500 to-amber-500",
     iconBg: "bg-orange-500/20",
     iconColor: "text-orange-400",

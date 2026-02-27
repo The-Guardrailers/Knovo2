@@ -28,7 +28,6 @@ import {
   RefreshCw,
   Shield,
 } from "lucide-react";
-
 /* ------------------------------------------------------------------ */
 /*  Knovo Avatar component (uses the brand mascot robot.png)            */
 /* ------------------------------------------------------------------ */
@@ -492,20 +491,20 @@ export default function KnovoLandingPage() {
           </div>
 
           {/* Headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[1.05] max-w-5xl mx-auto">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-extrabold tracking-tight leading-[1.05] w-full mx-auto flex flex-nowrap justify-center items-baseline gap-x-2 md:gap-x-3 whitespace-nowrap">
             <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-300 bg-clip-text text-transparent">
               Knowledge
             </span>
-            <span className="text-gray-500 mx-2 md:mx-3 font-light text-3xl md:text-6xl lg:text-7xl">
+            <span className="text-gray-500 font-light text-3xl md:text-6xl lg:text-7xl">
               +
             </span>
             <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-300 bg-clip-text text-transparent">
               Voice
             </span>
-            <span className="text-gray-500 mx-2 md:mx-3 font-light text-3xl md:text-6xl lg:text-7xl">
+            <span className="text-gray-500 font-light text-3xl md:text-6xl lg:text-7xl">
               =
             </span>
-            <span className="block sm:inline bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400 bg-clip-text text-transparent">
               KNOVO
             </span>
           </h1>
