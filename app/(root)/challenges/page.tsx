@@ -250,10 +250,7 @@ export default function ChallengesPage() {
               </div>
 
               {/* CTA */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
-                <span className="text-sm font-semibold text-cyan-400 group-hover:text-cyan-300 transition-colors">
-                  Start Challenge
-                </span>
+              <div className="flex items-center justify-end pt-4 border-t border-gray-700/50">
                 <div className="w-8 h-8 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center group-hover:bg-cyan-500/20 group-hover:translate-x-1 transition-all duration-300">
                   <ArrowRight className="w-4 h-4 text-cyan-400" />
                 </div>
@@ -317,12 +314,74 @@ export default function ChallengesPage() {
               </div>
 
               {/* CTA */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-700/50">
-                <span className="text-sm font-semibold text-purple-400 group-hover:text-purple-300 transition-colors">
-                  Start Interview
-                </span>
+              <div className="flex items-center justify-end pt-4 border-t border-gray-700/50">
                 <div className="w-8 h-8 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/20 group-hover:translate-x-1 transition-all duration-300">
                   <ArrowRight className="w-4 h-4 text-purple-400" />
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* Language Challenge */}
+          <Link
+            href="/challenges/language-challenge"
+            className="group relative text-left overflow-hidden rounded-2xl border border-gray-700/60 p-6 sm:p-8 transition-all duration-500 hover:border-blue-500/60 hover:shadow-[0_0_40px_rgba(59,130,246,0.12)]"
+            style={{
+              background:
+                "linear-gradient(145deg, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.9) 100%)",
+            }}
+          >
+            {/* Hover glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-cyan-500/0 group-hover:from-blue-500/5 group-hover:to-cyan-500/5 transition-all duration-500" />
+            {/* Corner accent */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-bl-full group-hover:bg-blue-500/10 transition-all duration-500" />
+
+            {/* NEW badge */}
+            <div className="absolute top-4 right-4 z-20">
+              <span className="relative flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 text-[10px] font-bold text-white uppercase tracking-wider shadow-lg shadow-blue-500/30">
+                <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                New
+              </span>
+            </div>
+
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-5">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/20 flex items-center justify-center group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-blue-500/20 transition-all duration-300">
+                  <MessageSquare className="w-7 h-7 text-blue-400" />
+                </div>
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-white group-hover:text-blue-200 transition-colors duration-300">
+                    Language Challenge
+                  </h2>
+                  <span className="text-[11px] text-gray-500 uppercase tracking-[0.2em] font-semibold">
+                    Roleplay + Evaluation
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-sm text-gray-400 leading-relaxed mb-6">
+                Master any language through complete voice-driven roleplay
+                scenarios. Get evaluated on fluency, grammar, vocabulary, and
+                pronunciation.
+              </p>
+
+              {/* Feature tags */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-500/10 border border-blue-500/15 text-[11px] font-medium text-blue-300">
+                  <MessageSquare className="w-3 h-3" /> Immersive Roleplay
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/15 text-[11px] font-medium text-emerald-300">
+                  <Brain className="w-3 h-3" /> Detailed Scoring
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/15 text-[11px] font-medium text-cyan-300">
+                  <Mic className="w-3 h-3" /> AI Voice
+                </span>
+              </div>
+
+              {/* CTA */}
+              <div className="flex items-center justify-end pt-4 border-t border-gray-700/50">
+                <div className="w-8 h-8 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/20 group-hover:translate-x-1 transition-all duration-300">
+                  <ArrowRight className="w-4 h-4 text-blue-400" />
                 </div>
               </div>
             </div>

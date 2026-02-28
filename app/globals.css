@@ -325,7 +325,7 @@
   }
 
   .root-layout-nosidebar {
-    @apply flex mx-auto max-w-[1350px] flex-col gap-12 my-12 px-16 max-sm:px-4 max-sm:my-8;
+    @apply flex w-full flex-col max-sm:px-4;
   }
 
   .card-cta {
