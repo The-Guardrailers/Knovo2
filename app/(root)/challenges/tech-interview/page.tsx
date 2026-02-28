@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
 import { useConversation } from "@elevenlabs/react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -15,6 +21,10 @@ import {
   ExecutionResult,
   InterviewScorecard as ScorecardType,
 } from "@/constants/interview";
+import {
+  getDSAInterviewerPrompt,
+  getDSAFirstMessage,
+} from "@/constants/interview-prompts";
 import {
   ArrowLeft,
   Mic,
@@ -52,6 +62,9 @@ export default function TechInterviewPage() {
     aggressionLevel: "Standard",
     hintTolerance: "Scaffolded",
   });
+  const [selectedLanguage, setSelectedLanguage] = useState<
+    "python" | "cpp" | "java"
+  >("python");
 
   // ── Session State ─────────────────────────────────────────────────────
   const [code, setCode] = useState("");
@@ -65,11 +78,13 @@ export default function TechInterviewPage() {
   const [isMuted, setIsMuted] = useState(false);
   const [sessionStart, setSessionStart] = useState<number>(0);
   const [elapsed, setElapsed] = useState(0);
+  const [agentVolume, setAgentVolume] = useState(0);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // ── ElevenLabs Conversation Hook ──────────────────────────────────────
   const conversation = useConversation({
+    volume: agentVolume,
     onConnect: () => {
       console.log("[ElevenLabs] Connected");
     },
@@ -79,16 +94,25 @@ export default function TechInterviewPage() {
         handleSessionEnd();
       }
     },
-    onError: (error) => {
+    onError: (error: unknown) => {
       console.error("[ElevenLabs] Error:", error);
     },
-    onMessage: (msg) => {
+    onMessage: (msg: { message: string; source: string }) => {
+      // Filter out ElevenLabs default greeting (safety net)
+      const lower = msg.message?.toLowerCase() ?? "";
+      if (
+        lower.includes("how can i help you") ||
+        lower.includes("how may i help") ||
+        lower.includes("how can i assist")
+      ) {
+        return;
+      }
       setMessages((prev) => [
         ...prev,
         { message: msg.message, source: msg.source },
       ]);
     },
-  });
+  } as any);
 
   // ── Timer ─────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -132,24 +156,69 @@ export default function TechInterviewPage() {
     }
 
     try {
-      setCode(selectedProblem.starterCode);
+      const starterCode =
+        selectedLanguage === "cpp"
+          ? selectedProblem.starterCodeCpp
+          : selectedLanguage === "java"
+            ? selectedProblem.starterCodeJava
+            : selectedProblem.starterCode;
+      setCode(starterCode);
       setMessages([]);
       setExecutionResult(null);
       setSessionStart(Date.now());
       setElapsed(0);
+      setAgentVolume(0); // Mute immediately so "How can I help you" plays silently
       setPhase("interview");
 
+      // Prevent scroll jerk when switching to interview layout
+      window.scrollTo(0, 0);
+
       await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      const problemStatement = `${selectedProblem.title}: ${selectedProblem.statement}`;
 
       await conversation.startSession({
         agentId,
         dynamicVariables: {
-          problemStatement: `${selectedProblem.title}: ${selectedProblem.statement} Constraints: ${selectedProblem.constraints}`,
+          problemStatement,
           testCases: selectedProblem.testCasesSummary,
           aggressionLevel: difficulty.aggressionLevel,
           hintTolerance: difficulty.hintTolerance,
+          promptContext: getDSAInterviewerPrompt(
+            problemStatement,
+            selectedProblem.constraints,
+            selectedProblem.testCasesSummary,
+            difficulty.aggressionLevel,
+            difficulty.hintTolerance,
+          ),
         },
       } as any);
+
+      // Forcefully start the conversation loop (just like pdf-explainer)
+      setTimeout(() => {
+        try {
+          conversation.sendContextualUpdate(
+            getDSAInterviewerPrompt(
+              problemStatement,
+              selectedProblem.constraints,
+              selectedProblem.testCasesSummary,
+              difficulty.aggressionLevel,
+              difficulty.hintTolerance,
+            ) +
+              "\n\n[CRITICAL INSTRUCTION]: Your very first response MUST be exactly this introduction: 'Welcome to your technical interview with Knovo. I will be your interviewer today. We have a coding problem to work through, followed by a few behavioral questions. Let me start by reading you the problem.' Then immediately read the full problem statement aloud. Do NOT say 'how can I help you' or any generic greeting.",
+          );
+
+          // Simulate user saying "start" to force the agent to reply
+          setTimeout(() => {
+            setAgentVolume(1); // Unmute right as our prompt forces the correct introduction
+            conversation.sendUserMessage(
+              "Please begin the interview now by reading the problem.",
+            );
+          }, 1500); // 1.5s additional wait (3s total) ensures default greeting finishes playing silently
+        } catch (e) {
+          console.warn("Could not send interview start trigger", e);
+        }
+      }, 1500);
     } catch (err: any) {
       console.error("Failed to start interview:", err);
       setPhase("setup");
@@ -557,7 +626,7 @@ export default function TechInterviewPage() {
       {/* ── Main Content ────────────────────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden">
         {/* LEFT: Voice Console / Transcript */}
-        <div className="w-80 sm:w-96 lg:w-[26rem] flex flex-col border-r border-gray-700/50 shrink-0 bg-gray-900/30">
+        <div className="w-72 sm:w-80 lg:w-96 flex flex-col border-r border-gray-700/50 shrink-0 bg-gray-900/30">
           {/* Voice orb */}
           <div className="p-5 flex flex-col items-center border-b border-gray-700/50 shrink-0">
             <div className="relative mb-3">
@@ -639,16 +708,59 @@ export default function TechInterviewPage() {
         {/* CENTER: Code Editor (interview only) / Full transcript (HR) */}
         {phase === "interview" ? (
           <div className="flex-1 flex flex-col min-w-0">
-            {/* Language indicator */}
+            {/* Language selector */}
             <div className="flex items-center gap-2 px-4 py-2 bg-gray-900/50 border-b border-gray-800 shrink-0">
-              <div className="w-3 h-3 rounded-full bg-yellow-500" />
-              <span className="text-xs font-semibold text-gray-400">
-                PYTHON 3.10
-              </span>
+              {(["python", "cpp", "java"] as const).map((lang) => {
+                const labels: Record<string, string> = {
+                  python: "Python 3.10",
+                  cpp: "C++ 17",
+                  java: "Java 17",
+                };
+                const colors: Record<string, string> = {
+                  python: "bg-yellow-500",
+                  cpp: "bg-blue-500",
+                  java: "bg-orange-500",
+                };
+                return (
+                  <button
+                    key={lang}
+                    onClick={() => {
+                      setSelectedLanguage(lang);
+                      const code =
+                        lang === "cpp"
+                          ? selectedProblem.starterCodeCpp
+                          : lang === "java"
+                            ? selectedProblem.starterCodeJava
+                            : selectedProblem.starterCode;
+                      setCode(code);
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                      selectedLanguage === lang
+                        ? "bg-gray-700 text-white"
+                        : "text-gray-500 hover:text-gray-300"
+                    }`}
+                  >
+                    <div
+                      className={`w-2.5 h-2.5 rounded-full ${colors[lang]}`}
+                    />
+                    {labels[lang]}
+                  </button>
+                );
+              })}
             </div>
             {/* Editor */}
             <div className="flex-1">
-              <CodeEditor code={code} onChange={setCode} />
+              <CodeEditor
+                code={code}
+                onChange={setCode}
+                language={
+                  selectedLanguage === "cpp"
+                    ? "cpp"
+                    : selectedLanguage === "java"
+                      ? "java"
+                      : "python"
+                }
+              />
             </div>
           </div>
         ) : (

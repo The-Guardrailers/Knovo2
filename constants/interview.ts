@@ -19,6 +19,8 @@ export interface DSAProblem {
     optimalTimeComplexity: string;
     optimalSpaceComplexity: string;
     starterCode: string;
+    starterCodeCpp: string;
+    starterCodeJava: string;
     testCasesSummary: string;
 }
 
@@ -38,6 +40,23 @@ export const DSA_PROBLEMS: DSAProblem[] = [
 def twoSum(nums: List[int], target: int) -> List[int]:
     # Write your solution here
     pass
+`,
+        starterCodeCpp: `#include <vector>
+using namespace std;
+
+vector<int> twoSum(vector<int>& nums, int target) {
+    // Write your solution here
+    return {};
+}
+`,
+        starterCodeJava: `import java.util.*;
+
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        // Write your solution here
+        return new int[]{};
+    }
+}
 `,
         testCasesSummary:
             "5 test cases: 2 basic (standard arrays), 2 edge (duplicates, negative numbers), 1 stress (10k elements).",
@@ -86,6 +105,24 @@ def twoSum(nums: List[int], target: int) -> List[int]:
         starterCode: `def isValid(s: str) -> bool:
     # Write your solution here
     pass
+`,
+        starterCodeCpp: `#include <string>
+#include <stack>
+using namespace std;
+
+bool isValid(string s) {
+    // Write your solution here
+    return false;
+}
+`,
+        starterCodeJava: `import java.util.*;
+
+class Solution {
+    public boolean isValid(String s) {
+        // Write your solution here
+        return false;
+    }
+}
 `,
         testCasesSummary:
             "5 test cases: 2 basic (simple valid/invalid), 2 edge (empty string, single char), 1 stress (nested 5k pairs).",
@@ -138,6 +175,23 @@ def mergeTwoLists(list1: List[int], list2: List[int]) -> List[int]:
     # Write your solution here
     pass
 `,
+        starterCodeCpp: `#include <vector>
+using namespace std;
+
+vector<int> mergeTwoLists(vector<int>& list1, vector<int>& list2) {
+    // Write your solution here
+    return {};
+}
+`,
+        starterCodeJava: `import java.util.*;
+
+class Solution {
+    public int[] mergeTwoLists(int[] list1, int[] list2) {
+        // Write your solution here
+        return new int[]{};
+    }
+}
+`,
         testCasesSummary:
             "5 test cases: 2 basic (standard merges), 2 edge (empty lists, single elements), 1 stress (large lists).",
         testCases: [
@@ -189,6 +243,24 @@ def maxSubArray(nums: List[int]) -> int:
     # Write your solution here
     pass
 `,
+        starterCodeCpp: `#include <vector>
+#include <climits>
+using namespace std;
+
+int maxSubArray(vector<int>& nums) {
+    // Write your solution here
+    return 0;
+}
+`,
+        starterCodeJava: `import java.util.*;
+
+class Solution {
+    public int maxSubArray(int[] nums) {
+        // Write your solution here
+        return 0;
+    }
+}
+`,
         testCasesSummary:
             "5 test cases: 2 basic (mixed positive/negative), 2 edge (single element, all negative), 1 stress (large array).",
         testCases: [
@@ -239,6 +311,23 @@ def maxSubArray(nums: List[int]) -> int:
 def search(nums: List[int], target: int) -> int:
     # Write your solution here
     pass
+`,
+        starterCodeCpp: `#include <vector>
+using namespace std;
+
+int search(vector<int>& nums, int target) {
+    // Write your solution here
+    return -1;
+}
+`,
+        starterCodeJava: `import java.util.*;
+
+class Solution {
+    public int search(int[] nums, int target) {
+        // Write your solution here
+        return -1;
+    }
+}
 `,
         testCasesSummary:
             "5 test cases: 2 basic (found/not found), 2 edge (single element, first/last element), 1 stress (10k elements).",

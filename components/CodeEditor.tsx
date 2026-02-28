@@ -7,18 +7,20 @@ interface CodeEditorProps {
   code: string;
   onChange: (value: string) => void;
   readOnly?: boolean;
+  language?: string;
 }
 
 export default function CodeEditor({
   code,
   onChange,
   readOnly = false,
+  language = "python",
 }: CodeEditorProps) {
   return (
     <div className="h-full w-full rounded-xl overflow-hidden border border-gray-700/50">
       <Editor
         height="100%"
-        defaultLanguage="python"
+        language={language}
         value={code}
         onChange={(val) => onChange(val || "")}
         theme="vs-dark"
@@ -34,7 +36,7 @@ export default function CodeEditor({
           automaticLayout: true,
           padding: { top: 16, bottom: 16 },
           wordWrap: "on",
-          tabSize: 4,
+          tabSize: language === "python" ? 4 : 4,
           insertSpaces: true,
           bracketPairColorization: { enabled: true },
           smoothScrolling: true,
