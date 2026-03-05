@@ -1,8 +1,4 @@
-# KNOVO = Knowledge + Voice - AI-powered Voice Based Quiz Platform
-
-![Knovo Logo](./public/demo.png)
-
-# Built for the AMD Hackathon
+# Built for the AMD Slingshot Hackathon
 
 🌐 **Live Deployment** → [Knovo App](https://knovo-dhlb.vercel.app)
 
