@@ -1,6 +1,6 @@
 # Built for the AMD Slingshot Hackathon
 
-🌐 **Live Deployment** → [Knovo App](https://knovo-dhlb.vercel.app)
+🌐 **Live Deployment** → [Knovo App](https://knovo20-aht93i9gy-dsj-24s-projects.vercel.app/)
 
 ## 🌟 Overview
 
@@ -51,7 +51,7 @@ NEXT_PUBLIC_DEMO_WORKFLOW_ID="Your Key"
 - For **Firebase** and **Vapi workflows** (`NEXT_PUBLIC_VAPI_*`), except the Vapi web token, you will need to use the keys provided by us. This is because the workflows and Firestore database indexes have been created under our account.
 - Alternatively, you may use our _Special Setup guide_ mentioned in our _Supplementary File_ or use _live deployment_ to test the application without setting up your own environment:
 
-👉 [Knovo on Vercel](https://knovo-dhlb.vercel.app)
+👉 [Knovo on Vercel](https://knovo20-aht93i9gy-dsj-24s-projects.vercel.app/)
 
 ### 4. Run the application
 
@@ -66,7 +66,7 @@ npm run dev
 - **Team Name**: The Guardrailers
 - **Team Lead**: Shreesh Prateek Pathak
 - **Problem Statement**: AI in Education and Skilling Architecture
-- **Demo Video** → [Demo Video Drive Link](https://drive.google.com/file/d/1fvZgq9G7V3mbFjCHTgJt6i7QCWBp4pH_/view?usp=sharing)
-- **Live App** → [Knovo on Vercel](https://knovo-dhlb.vercel.app)
+- **Demo Video** → [Demo Video Drive Link](https://drive.google.com/file/d/1fvZgq9G7V3mbFjCHTgJt6i7QCWBP4pH_/view?usp=sharing)
+- **Live App** → [Knovo on Vercel](https://knovo20-aht93i9gy-dsj-24s-projects.vercel.app/)
 
 ---
